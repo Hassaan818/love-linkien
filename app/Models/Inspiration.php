@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inspiration extends Model
 {
-    protected $fillable = ['name', 'category_id', 'slug', 'image', 'notes', 'short_description', 'tags'];
+    protected $fillable = ['name', 'slug', 'gallery', 'notes', 'short_description', 'user_id'];
 
     public function category()
     {

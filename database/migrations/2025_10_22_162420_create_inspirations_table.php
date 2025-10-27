@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('inspirations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('image');
-            $table->text('notes')->nullable();
-            $table->text('short_description');
-            $table->json('tags')->nullable();
+            $table->json('gallery');
+            $table->text('notes');
+            $table->text('short_description')->nullable();
+
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

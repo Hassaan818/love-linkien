@@ -44,7 +44,7 @@ class AuthService extends Service
             Otp::create([
                 'user_id' => $user->id,
                 'one_time_password' => $otpCode,
-                'expires_at' => now()->addMinutes(5),
+                'expires_at' => now()->addDay(),
             ]);
 
             Mail::raw("Your OTP code is: {$otpCode}", function ($message) use ($user) {
@@ -77,29 +77,30 @@ class AuthService extends Service
             ];
         }
 
-        $user = User::where('email', $data['login'])
-            ->where('remember_token', $data['password'])
-            ->where('email_verified_at', "Yes")
-            ->first();
+        $user = User::where('email', $data['login'])->first();
 
-        if ($user) {
-            Auth::login($user);
-
-            $user->remember_token = null;
-            $user->save();
-
-            $authenticated_user = $user;
-        } else {
-            if (!Auth::attempt(['email' => $data['login'], 'password' => $data['password']])) {
-                return [
-                    'code' => 4010,
-                    'message' => "Invalid credentials.",
-                ];
-            }
-
-            $authenticated_user = Auth::user();
+        if (!$user) {
+            return [
+                'code' => 4010,
+                'message' => "User not found.",
+            ];
         }
 
+        if (empty($user->email_verified_at) || empty($user->remember_token)) {
+            return [
+                'code' => 4010,
+                'message' => "Your account is not verified. Please verify your email and token first.",
+            ];
+        }
+
+        if (!Auth::attempt(['email' => $data['login'], 'password' => $data['password']])) {
+            return [
+                'code' => 4010,
+                'message' => "Invalid credentials.",
+            ];
+        }
+
+        $authenticated_user = Auth::user();
         $user_token = $authenticated_user->createToken('Access Token')->plainTextToken;
 
         return [
@@ -188,102 +189,44 @@ class AuthService extends Service
     // }
 
 
-    public function verifyOtp($data)
-    {
-        // dd($data['otp']);
-        $otp = Otp::where('one_time_password', $data['otp'])
-            ->where('expires_at', '>', now())
-            ->first();
-
-        $user = User::find($otp->user_id);
-
-        if (!$user) {
-            $this->response['code'] = 4010;
-            $this->response['message'] = 'User Not Found';
-            return $this->response;
-        }
-
-        $token = rand(100000, 999999);
-        $user->remember_at = Carbon::now()->addDay();
-        $user->email_verified_at = "Yes";
-        $user->save();
-
-        Mail::raw("Your One Time Password is: {$token}", function ($message) use ($user) {
-            $message->to($user->email)
-                ->subject('Login with this code for the first time and then change your password');
-        });
-
-        if (!$otp) {
-            $this->response['code'] = 4010;
-            $this->response['message'] = 'Otp Not Valid';
-            return $this->response;
-        }
-
-        $this->response['code'] = 2000;
-        $this->response['message'] = 'Otp Verified Successfully';
-        $this->response['data'] = [
-            'remember_token' => $user->remember_token
-        ];
-        return $this->response;
-    }
-
-    public function verifyCodOtp($data)
+    public function verifyOtp(array $data)
     {
         $otp = Otp::where('one_time_password', $data['otp'])
-            ->where('expires_at', '>', now())
-            ->where('type', 'order')
             ->first();
 
         if (!$otp) {
-            $this->response['code'] = 4010;
-            $this->response['message'] = 'Otp Not Valid';
-            return $this->response;
-        }
-        $order = Order::find($otp->order_id);
-        if ($order && $order->cart) {
-            $order->status = 'pending';
-            $order->confirmed = 1;
-
-            $cart = $order->cart;
-            $cart->status = 3;
-            $cart->items()->delete();
-            $cart->save();
-            $order->save();
+            return [
+                'code' => 4010,
+                'message' => 'OTP is invalid or expired.',
+            ];
         }
 
-        if (!$order) {
-            $this->response['code'] = 4040;
-            $this->response['message'] = 'Order Not Found';
-            return $this->response;
-        }
+        $user = User::where('id', $otp->user_id)->first();
 
-        $otp->delete();
-
-        $this->response['code'] = 2000;
-        $this->response['message'] = 'Otp Verified Successfully';
-        $this->response['data'] = [
-            'order' => $order
-        ];
-        return $this->response;
-    }
-
-    public function resetPassword($data, $remember_token)
-    {
-        $user = User::where('remember_token', $remember_token)->first();
         if (!$user) {
-            $this->response['code'] = 4010;
-            $this->response['message'] = 'User Not Found';
-            return $this->response;
+            return [
+                'code' => 4010,
+                'message' => 'User not found.',
+            ];
         }
-        $user->password = bcrypt($data['password']);
-        $user->remember_at = null;
-        $user->remember_token = null;
+
+        $user->remember_token = rand(100000, 999999);
+        $user->email_verified_at = now();
         $user->save();
-        $otp = Otp::where('user_id', $user->id)->first();
+
         $otp->delete();
 
-        $this->response['code'] = 2000;
-        $this->response['message'] = 'Password Reset Successfully';
-        return $this->response;
+        // Mail::raw("Your login token is: {$user->remember_at}", function ($message) use ($user) {
+        //     $message->to($user->email)
+        //         ->subject('Login Token (use this for first login)');
+        // });
+
+        return [
+            'code' => 2000,
+            'message' => 'OTP verified successfully.',
+            'data' => [
+                'token' => $user->remember_at,
+            ],
+        ];
     }
 }
