@@ -18,9 +18,7 @@
                     <div class="card card-default card-md mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h6>All Inspirations</h6>
-                            <a href="{{ route('admin.inspirations.create') }}" class="btn px-15 btn-primary btn-squared btn-sm">
-                                Add Inspiration
-                            </a>
+                           
                         </div>
 
                         <div class="card-body">
@@ -58,8 +56,6 @@
                                             </td>
                                             <td class="text-end">
                                                 <div class="d-inline-flex gap-2">
-                                                    <a href="{{ route('admin.inspirations.show', $inspiration->id) }}" class="btn btn-sm btn-secondary">Show</a>
-                                                    <a href="{{ route('admin.inspirations.edit', $inspiration->id) }}" class="btn btn-sm btn-primary">Edit</a>
                                                     <form method="POST" action="{{ route('admin.inspirations.destroy', $inspiration->id) }}">
                                                         @csrf
                                                         @method('DELETE')

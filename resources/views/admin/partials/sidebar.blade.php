@@ -8,16 +8,16 @@
                         <span class="menu-text">Dashboard</span>
                     </a>
                 </li>
-                <li class="{{ (request()->is('admin/categories')) ? 'active' : '' }}">
-                    <a href="{{ route('admin.categories.index') }}">
+                <li class="{{ (request()->is('admin/venues')) ? 'active' : '' }}">
+                    <a href="{{ route('admin.venues.index') }}">
                         <span class="nav-icon uil uil-create-dashboard"></span>
-                        <span class="menu-text">Categories</span>
+                        <span class="menu-text">Venues</span>
                     </a>
                 </li>
-                <li class="{{ (request()->is('admin/inspirations')) ? 'active' : '' }}">
-                    <a href="{{ route('admin.inspirations.index') }}">
+                <li class="{{ (request()->is('admin/meetings')) ? 'active' : '' }}">
+                    <a href="{{ route('admin.meetings.index') }}">
                         <span class="nav-icon uil uil-create-dashboard"></span>
-                        <span class="menu-text">Inspirations</span>
+                        <span class="menu-text">Meetings</span>
                     </a>
                 </li>
 

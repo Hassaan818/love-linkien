@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InspirationController;
+use App\Http\Controllers\Admin\MeetingController;
+use App\Http\Controllers\Admin\VenueController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,10 +20,14 @@ Route::middleware('guest')->group(function () {
 Route::group([
     'as' => 'admin.',
     'prefix' => 'admin',
-    'middleware' => ['auth'],
+    'middleware' => ['auth', 'role:admin'],
 ], function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('/categories', CategoryController::class);
     Route::resource('/inspirations', InspirationController::class);
+    Route::resource('venues', VenueController::class);
+    Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::get('/meeting/{id}', [MeetingController::class, 'show'])->name('meetings.show');
+    Route::delete('/meeting/{id}', [MeetingController::class, 'destroy'])->name('meetings.destroy');
 });
