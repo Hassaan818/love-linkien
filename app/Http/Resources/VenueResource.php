@@ -16,12 +16,10 @@ class VenueResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'title' => $this->title,
             'slug' => $this->slug,
-            'address' => $this->address,
-            'city' => $this->city,
-            'state' => $this->state,
-            'country' => $this->country,
+            'location' => $this->venue_location,
+            'Owner' => $this->venue_owner,
             'featured_image' => $this->featured_image
                 ? asset($this->featured_image)
                 : null,
@@ -31,6 +29,7 @@ class VenueResource extends JsonResource
                 ->toArray()
                 : [],
             'description' => $this->description,
+            'short_description' => $this->short_description
 
         ];
     }

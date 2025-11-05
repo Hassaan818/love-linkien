@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Illuminate\Console\Scheduling\Schedule;
+use App\Console\Commands\DeactivateOldChecklists;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -39,6 +41,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
+    })
+    ->withCommands([
+        DeactivateOldChecklists::class,
+    ])
+    ->withSchedule(function (Schedule $schedule) {
+        $schedule->command('checklists:deactivate-old')->daily();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
