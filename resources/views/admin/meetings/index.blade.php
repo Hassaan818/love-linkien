@@ -35,7 +35,7 @@
                                     <thead>
                                         <tr class="userDatatable-header">
                                             <th><span class="userDatatable-title">#</span></th>
-                                            <th><span class="userDatatable-title">Venue</span></th>
+                                            <th><span class="userDatatable-title">With</span></th>
                                             <th><span class="userDatatable-title">User</span></th>
                                             <th><span class="userDatatable-title">Meeting Date</span></th>
                                             <th><span class="userDatatable-title">Start Time</span></th>
@@ -49,7 +49,7 @@
                                         @forelse($meetings as $meeting)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $meeting->venue->title ?? '—' }}</td>
+                                            <td>{{ $meeting->adminUser->name ?? '—' }}</td>
                                             <td>{{ $meeting->user->name ?? '—' }}</td>
                                             <td>{{ $meeting->meeting_date }}</td>
                                             <td>{{ $meeting->start_time }}</td>

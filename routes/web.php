@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\AvailabilityController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InspirationController;
@@ -27,7 +29,11 @@ Route::group([
     Route::resource('/categories', CategoryController::class);
     Route::resource('/inspirations', InspirationController::class);
     Route::resource('venues', VenueController::class);
+    Route::resource('availability', AvailabilityController::class);
     Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index');
     Route::get('/meeting/{id}', [MeetingController::class, 'show'])->name('meetings.show');
     Route::delete('/meeting/{id}', [MeetingController::class, 'destroy'])->name('meetings.destroy');
+
+    Route::resource('users', AdminController::class)->except(['show']);
+    Route::resource('availability', AvailabilityController::class);
 });

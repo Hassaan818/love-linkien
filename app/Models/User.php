@@ -23,11 +23,17 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'image'
     ];
 
     public function otp()
     {
         return $this->hasMany(Otp::class);
+    }
+
+    public function availabilities()
+    {
+        return $this->hasMany(\App\Models\Availability::class);
     }
 
     /**

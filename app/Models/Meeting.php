@@ -29,4 +29,9 @@ class Meeting extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function adminUser()
+    {
+        return $this->belongsTo(User::class, 'admin_user_id');
+    }
 }

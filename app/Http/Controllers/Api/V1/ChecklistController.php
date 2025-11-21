@@ -48,6 +48,27 @@ class ChecklistController extends Controller
         return $this->internalError([], $response['message']);
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $userId = auth()->user()->id;
+        $data = $request->validate([
+            'status' => 'required'
+        ]);
+        $response = $this->checkListService->updateStatus($id, $userId, $data);
+        if ($response['code'] === 2000) {
+            return $this->success(
+                ['checklist'
+                => new ChecklistResource($response['data']['checklist'])],
+                $response['message']
+            );
+        }
+        if ($response['code'] === 4004) {
+            return $this->notFound([], $response['message']);
+        }
+
+        return $this->internalError([], $response['message']);
+    }
+
     public function deleteCheckList(Request $request)
     {
         $id = $request->id;

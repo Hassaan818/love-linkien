@@ -17,7 +17,7 @@ class MeetingController extends Controller
 
     public function show(int $id)
     {
-        $meeting = Meeting::where('id', $id)->first();
+        $meeting = Meeting::with('adminUser')->where('id', $id)->first();
         return view('admin.meetings.show', [
             'meeting' => $meeting
         ]);

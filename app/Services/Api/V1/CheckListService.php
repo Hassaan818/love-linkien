@@ -50,6 +50,34 @@ class CheckListService extends Service
         return $this->response;
     }
 
+    public function updateStatus($id, $userId, $data)
+    {
+        $checklist = Checklist::where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
+        if (!$checklist) {
+            $this->response['code'] = 4004;
+            $this->response['message'] = 'Checklist not found';
+            $this->response['data'] = null;
+            return $this->response;
+        }
+        $checklist->status = $data['status'];
+        $checklist->save();
+        if ($checklist) {
+            $this->response['code'] = 2000;
+            $this->response['message'] = 'Check lists status updated Successfully';
+            $this->response['data'] = [
+                'checklist' => $checklist
+            ];
+            return $this->response;
+        }
+
+        $this->response['code'] = 5000;
+        $this->response['message'] = 'Internal Server Error';
+        $this->response['data'] = null;
+        return $this->response;
+    }
+
     public function deleteCheckList($id, $userId)
     {
         $checklist = Checklist::where('id', $id)

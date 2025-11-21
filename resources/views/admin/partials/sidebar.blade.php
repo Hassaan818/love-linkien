@@ -8,10 +8,22 @@
                         <span class="menu-text">Dashboard</span>
                     </a>
                 </li>
-                <li class="{{ (request()->is('admin/venues')) ? 'active' : '' }}">
+                <!-- <li class="{{ (request()->is('admin/venues')) ? 'active' : '' }}">
                     <a href="{{ route('admin.venues.index') }}">
                         <span class="nav-icon uil uil-create-dashboard"></span>
                         <span class="menu-text">Venues</span>
+                    </a>
+                </li> -->
+                <li class="{{ (request()->is('admin/users')) ? 'active' : '' }}">
+                    <a href="{{ route('admin.users.index') }}">
+                        <span class="nav-icon uil uil-create-dashboard"></span>
+                        <span class="menu-text">Admin Users</span>
+                    </a>
+                </li>
+                <li class="{{ (request()->is('admin/availability')) ? 'active' : '' }}">
+                    <a href="{{ route('admin.availability.index') }}">
+                        <span class="nav-icon uil uil-create-dashboard"></span>
+                        <span class="menu-text">Meeting Availability</span>
                     </a>
                 </li>
                 <li class="{{ (request()->is('admin/meetings')) ? 'active' : '' }}">
