@@ -4,6 +4,8 @@
 <div class="contents">
   <div class="demo2 mb-25 t-thead-bg">
     <div class="container-fluid">
+      @include('admin.partials.success-messages')
+      @include('admin.partials.validation-error-messages')
       <div class="row">
         <div class="col-lg-12">
           <div class="breadcrumb-main">
@@ -48,7 +50,7 @@
                     <input type="file" name="image" class="form-control">
                   </div>
 
-                  
+
 
                   <div class="col-md-12">
                     <div class="button-group d-flex justify-content-end">

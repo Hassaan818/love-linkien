@@ -4,6 +4,9 @@
 <div class="contents">
   <div class="demo2 mb-25 t-thead-bg">
     <div class="container-fluid">
+
+      @include('admin.partials.success-messages')
+      @include('admin.partials.validation-error-messages')
       <div class="row">
         <div class="col-lg-12">
           <div class="breadcrumb-main">
@@ -48,11 +51,11 @@
                     <label>Profile Image</label>
                     <input type="file" name="image" class="form-control">
                     @if($user->image)
-                      <img src="{{ asset('storage/'.$user->image) }}" alt="" style="width:80px;margin-top:8px;">
+                    <img src="{{ asset('storage/'.$user->image) }}" alt="" style="width:80px;margin-top:8px;">
                     @endif
                   </div>
 
-                 
+
 
                   <div class="col-md-12">
                     <div class="button-group d-flex justify-content-end">
