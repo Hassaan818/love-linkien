@@ -163,31 +163,6 @@ class AuthService extends Service
         return $this->response;
     }
 
-    // public function resetPasswordLink($data)
-    // {
-    //     $user = User::where('email', $data['email'])->first();
-
-    //     if (!$user) {
-    //         $this->response['code'] = 4010;
-    //         $this->response['message'] = 'User Not Found';
-    //         return $this->response;
-    //     }
-
-    //     $otp = rand(100000, 999999);
-    //     Otp::create([
-    //         'user_id' => $user->id,
-    //         'one_time_password' => $otp,
-    //         'expires_at' => Carbon::now()->addDays(3),
-    //     ]);
-
-    //     Mail::to($user->email)->send(new OtpForgetPasswordMail($otp));
-    //     $this->response['code'] = 2000;
-    //     $this->response['message'] = 'Otp sent';
-    //     $this->response['data'] = [];
-
-    //     return $this->response;
-    // }
-
 
     public function verifyOtp(array $data)
     {
@@ -216,11 +191,6 @@ class AuthService extends Service
 
         $otp->delete();
 
-        // Mail::raw("Your login token is: {$user->remember_at}", function ($message) use ($user) {
-        //     $message->to($user->email)
-        //         ->subject('Login Token (use this for first login)');
-        // });
-
         return [
             'code' => 2000,
             'message' => 'OTP verified successfully.',
@@ -228,5 +198,131 @@ class AuthService extends Service
                 'token' => $user->remember_at,
             ],
         ];
+    }
+
+    public function deleteProfile($user_id)
+    {
+        $user = User::where('id', $user_id)->first();
+        if (!$user) {
+            $this->response['code'] = 4004;
+            $this->response['message'] = 'User not found';
+            $this->response['data'] = null;
+        }
+        try {
+
+            $deleted = $user->delete();
+
+            if ($deleted) {
+                $this->response['code'] = 2000;
+                $this->response['message'] = 'User profile deleted';
+                $this->response['data'] = null;
+            } else {
+                $this->response['code'] = 5000;
+                $this->response['message'] = 'User not deleted';
+                $this->response['data'] = null;
+            }
+        } catch (\Exception $e) {
+            $this->response['code'] = 5001;
+            $this->response['message'] = 'Error deleting user: ' . $e->getMessage();
+            $this->response['data'] = null;
+        }
+
+        return $this->response;
+    }
+
+    public function forgotPassword(array $data)
+    {
+        try {
+            $user = User::where('email', $data['email'])->first();
+
+            if (!$user) {
+                return [
+                    'code' => 4004,
+                    'message' => 'User not found.',
+                    'data' => null
+                ];
+            }
+
+            Otp::where('user_id', $user->id)->delete();
+
+            $otpCode = rand(100000, 999999);
+
+            Otp::create([
+                'user_id' => $user->id,
+                'one_time_password' => $otpCode,
+                'expires_at' => now()->addMinutes(10),
+            ]);
+
+            Mail::to($user->email)->send(new OtpForgetPasswordMail($otpCode));
+
+            return [
+                'code' => 2000,
+                'message' => 'OTP sent to your email.',
+                'data' => null
+            ];
+        } catch (\Exception $e) {
+            return [
+                'code' => 5000,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data' => null
+            ];
+        }
+    }
+
+
+    public function resetPassword(array $data)
+    {
+        try {
+            $user = User::where('email', $data['email'])->first();
+
+            if (!$user) {
+                return [
+                    'code' => 4004,
+                    'message' => 'User not found.',
+                    'data' => null
+                ];
+            }
+
+            $otp = Otp::where('user_id', $user->id)
+                ->where('one_time_password', $data['otp'])
+                ->first();
+
+            if (!$otp) {
+                return [
+                    'code' => 4010,
+                    'message' => 'OTP is invalid.',
+                    'data' => null
+                ];
+            }
+
+            if (now()->gt($otp->expires_at)) {
+                $otp->delete();
+                return [
+                    'code' => 4010,
+                    'message' => 'OTP is expired.',
+                    'data' => null
+                ];
+            }
+
+            $user->password = Hash::make($data['password']);
+            $user->remember_token = rand(100000, 999999);
+            $user->email_verified_at = now();
+            $user->tokens()->delete();
+            $user->save();
+
+            $otp->delete();
+
+            return [
+                'code' => 2000,
+                'message' => 'Password reset successfully.',
+                'data' => null
+            ];
+        } catch (Exception $e) {
+            return [
+                'code' => 5000,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'data' => null
+            ];
+        }
     }
 }

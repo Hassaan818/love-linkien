@@ -14,12 +14,12 @@ class MeetingController extends Controller
     use ApiResponseTrait;
     public function __construct(protected MeetingService $meetingService) {}
 
-    public function scheduleMeeting(MeetingStoreRequest $request, $adminUserId)
+    public function scheduleMeeting(MeetingStoreRequest $request, $slug)
     {
         $data = $request->validated();
         $userId = auth()->user()->id;
 
-        $response = $this->meetingService->scheduleMeeting($data, $adminUserId, $userId);
+        $response = $this->meetingService->scheduleMeeting($data, $slug, $userId);
 
         if ($response['code'] === 2000) {
             return $this->success([

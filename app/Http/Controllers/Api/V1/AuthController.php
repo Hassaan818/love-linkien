@@ -79,4 +79,64 @@ class AuthController extends Controller
 
         return $this->internalError(null, $response['message']);
     }
+
+    public function deleteAccount()
+    {
+        $user_id = auth()->user()->id;
+        $response = $this->authService->deleteProfile($user_id);
+
+        if ($response['code'] === 2000) {
+            return $this->success([], $response['message']);
+        }
+        if ($response['code'] === 4004) {
+            return $this->notFound([], $response['message']);
+        }
+
+        return $this->internalError([], $response['message']);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $response = $this->authService->forgotPassword($request->only('email'));
+
+        if ($response['code'] === 2000) {
+            return $this->success([], $response['message']);
+        }
+
+        if ($response['code'] === 4004) {
+            return $this->notFound(null, $response['message']);
+        }
+
+        return $this->internalError(null, $response['message']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+            'password' => 'required|min:8|confirmed',
+            // requires: password_confirmation
+        ]);
+
+        $response = $this->authService->resetPassword($request->only('email', 'otp', 'password'));
+
+        if ($response['code'] === 2000) {
+            return $this->success([], $response['message']);
+        }
+
+        if ($response['code'] === 4010) {
+            return $this->error(null, $response['message'], 4010);
+        }
+
+        if ($response['code'] === 4004) {
+            return $this->notFound(null, $response['message']);
+        }
+
+        return $this->internalError(null, $response['message']);
+    }
 }

@@ -2,19 +2,25 @@
 
 namespace App\Services\Api\V1;
 
+use App\Models\Inspiration;
 use App\Models\Meeting;
 use App\Models\User;
-use App\Models\Venue;
 use App\Services\Service;
 
 class MeetingService extends Service
 {
-    public function scheduleMeeting(array $data, int $adminUserId, int $userId): array
+    public function scheduleMeeting(array $data, string $slug, int $userId): array
     {
-        $admin = User::role('admin')->find($adminUserId);
+        $inspiration = Inspiration::where('slug', $slug)->first();
 
-        // $all_arrays = array_merge(['slug' => $slug], $data, ['user_id' => $userId]);
-        // dd($all_arrays);
+        if (!$inspiration) {
+            $this->response['code'] = 4004;
+            $this->response['message'] = 'Inspiration Not Found!';
+            $this->response['data'] = null;
+            return $this->response;
+        }
+
+        $admin = User::role('admin')->find($inspiration->user_id);
 
         if (!$admin) {
             $this->response['code'] = 4004;

@@ -25,7 +25,7 @@ class MeetingController extends Controller
     public function destroy(int $id)
     {
         $meeting = Meeting::where('id', $id)->first();
-        $meeting->destroy();
+        $meeting->delete();
         return to_route('admin.meetings.index')->with('message', 'Meeting Deleted Successfully');
     }
 }
